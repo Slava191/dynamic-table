@@ -1,0 +1,1 @@
+.table td:not(:first-child),th:not(:first-child){text-align:center}.pointer{cursor:pointer}body,html{height:100%}.main{padding:100px 40px}.sidebar{position:fixed;top:80px;bottom:0;padding:30px}.footer,.header{padding:30px;color:#fff}
