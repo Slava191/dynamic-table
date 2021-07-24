@@ -33,7 +33,7 @@
     <div class="card bg-light mt-2 mb-2">
         <div class="card-body">
             {{selectedField ? `Выбран автомобиль ${selectedField} года выпуска` : `Выберите автомобиль и год выпуска`}} 
-            <span v-if="selectedField" @click="selectField('')">[X]</span>
+            <b v-if="selectedField" @click="selectField('')">[X]</b>
         </div>
     </div>
 </template>
@@ -60,17 +60,44 @@ export default {
             selectedField: ""
         }
     },
+    props: {
+        contentProps: {
+            type: Object,
+            default: function () {
+                return null
+            }
+        },
+    },
     methods:{
         search(){
-
-            //Допилить возможность искать с годами, типа Audi 2013
-            //Переводить задачу в область поиска подпоследовательности в массиве
 
             this.content = this.dataChanged ? {...this.contentCopy} : this.content
 
             this.content.cars = this.content.cars.filter(car => {
-                if(!`${car.mark} ${car.model}`.includes(this.requestString)) return false
+
+                //Формируем массив carInfo
+
+                const carInfoArr = [car.mark, car.model]
+
+                for(const tariff of Object.values(car.tariffs))
+                    carInfoArr.push(tariff.year.toString())
+                
+                //Формируем массив поискового запроса
+
+                if(this.requestString.trim() === "") return true
+
+                const requestArr = this.requestString.split(" ")
+
+                // O(n^2) - плохо...было бы больше времени, подумал бы над более оптимальным решением
+                for(const requestItem of requestArr)
+                    if(!carInfoArr.includes(requestItem)) return false
+                
                 return true
+
+
+                // if(!`${car.mark} ${car.model}`.includes(this.requestString)) return false
+                // return true
+
             })
 
             this.dataChanged = true
@@ -106,7 +133,8 @@ export default {
         }  
     },
     async created(){
-        this.content = (await this.axios.get("https://city-mobil.ru/api/cars")).data
+        //this.content = (await this.axios.get("https://city-mobil.ru/api/cars")).data
+        this.content = {...this.contentProps}
         this.contentCopy = {...this.content}
     }
 }
